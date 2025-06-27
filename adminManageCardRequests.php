@@ -13,7 +13,7 @@ $actionMsg = '';
 // Handle accept/reject actions
 if (isset($_POST['action'], $_POST['userid'], $_POST['cardno'])) {
     $userid = intval($_POST['userid']);
-    $cardno = (float) $_POST['cardno']; // use float for BIGINT cardno
+    $cardno = (float) $_POST['cardno'];
 
     if ($_POST['action'] === 'accept') {
         // Extend expiry by 3 years
@@ -32,7 +32,7 @@ if (isset($_POST['action'], $_POST['userid'], $_POST['cardno'])) {
     } elseif ($_POST['action'] === 'reject') {
         // Only delete specific request
         $del = $conn->prepare("DELETE FROM cardrequests WHERE userid = ? AND cardno = ?");
-        $del->bind_param('id', $userid, $cardno); // fixed from 'is' to 'id'
+        $del->bind_param('id', $userid, $cardno);
         $del->execute();
         $del->close();
         $actionMsg = "Card request rejected.";
@@ -48,56 +48,149 @@ $sql = "SELECT cardrequests.userid, cardrequests.cardno, users.username, users.e
         FROM cardrequests 
         JOIN users ON cardrequests.userid = users.id";
 $result = $conn->query($sql);
+$requests = [];
+if ($result && $result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $requests[] = $row;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Manage Card Requests</title>
-    <link rel="stylesheet" href="assets/style.css">
+    <title>Lucky Bank - Card Requests</title>
+    <link rel="stylesheet" href="assets/admin-card-requests.css">
 </head>
 <body>
-    <h2>Pending Card Requests</h2>
+    <div class="page-container">
+        <!-- Header Section -->
+        <header class="page-header">
+            <div class="header-content">
+                <div class="bank-logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <h1 class="bank-name">Lucky Bank</h1>
+                </div>
+                <div class="user-info">
+                    <span class="admin-badge">Administrator</span>
+                    <a href="adminDashboard.php" class="back-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M19 12H5M12 19l-7-7 7-7"/>
+                        </svg>
+                        Dashboard
+                    </a>
+                </div>
+            </div>
+        </header>
 
-    <?php if (!empty($actionMsg)): ?>
-        <p style="color: green;"><?= htmlspecialchars($actionMsg) ?></p>
-    <?php endif; ?>
+        <!-- Main Content -->
+        <main class="page-main">
+            <div class="page-content">
+                <div class="page-title-section">
+                    <h2 class="page-title">Card Requests</h2>
+                    <p class="page-subtitle">Review and manage pending card applications</p>
+                </div>
 
-    <table border="1" cellpadding="8">
-        <tr>
-            <th>User ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Balance</th>
-            <th>Status</th>
-            <th>Card Number</th>
-            <th>Actions</th>
-        </tr>
-        <?php while ($row = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= htmlspecialchars($row['userid']) ?></td>
-            <td><?= htmlspecialchars($row['username']) ?></td>
-            <td><?= htmlspecialchars($row['email']) ?></td>
-            <td><?= htmlspecialchars($row['balance']) ?></td>
-            <td><?= $row['status'] ? 'Active' : 'Inactive' ?></td>
-            <td><?= htmlspecialchars($row['cardno']) ?></td>
-            <td>
-                <form method="post" style="display:inline-block;">
-                    <input type="hidden" name="userid" value="<?= $row['userid'] ?>">
-                    <input type="hidden" name="cardno" value="<?= $row['cardno'] ?>">
-                    <button type="submit" name="action" value="accept">Accept</button>
-                </form>
-                <form method="post" style="display:inline-block;">
-                    <input type="hidden" name="userid" value="<?= $row['userid'] ?>">
-                    <input type="hidden" name="cardno" value="<?= $row['cardno'] ?>">
-                    <button type="submit" name="action" value="reject">Reject</button>
-                </form>
-            </td>
-        </tr>
-        <?php endwhile; ?>
-    </table>
-    <br>
-    <a href="adminDashboard.php">Back to Dashboard</a>
+                <?php if (!empty($actionMsg)): ?>
+                    <div class="alert alert-success">
+                        <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <?= htmlspecialchars($actionMsg) ?>
+                    </div>
+                <?php endif; ?>
+
+                <div class="requests-container">
+
+                    <?php if (empty($requests)): ?>
+                        <div class="empty-state">
+                            <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                                <line x1="1" y1="10" x2="23" y2="10"/>
+                            </svg>
+                            <h3>No Pending Requests</h3>
+                            <p>There are no card requests waiting for approval at this time.</p>
+                        </div>
+                    <?php else: ?>
+                        <div class="requests-grid">
+                            <?php foreach ($requests as $request): ?>
+                                <div class="request-card">
+                                    <div class="request-header">
+                                        <div class="user-info-section">
+                                            <div class="user-avatar">
+                                                <?= strtoupper(substr($request['username'], 0, 1)) ?>
+                                            </div>
+                                            <div class="user-details">
+                                                <h3 class="username"><?= htmlspecialchars($request['username']) ?></h3>
+                                                <p class="user-email"><?= htmlspecialchars($request['email']) ?></p>
+                                            </div>
+                                        </div>
+                                        <div class="status-badge <?= $request['status'] ? 'active' : 'inactive' ?>">
+                                            <?= $request['status'] ? 'Active' : 'Inactive' ?>
+                                        </div>
+                                    </div>
+
+                                    <div class="request-details">
+                                        <div class="detail-item">
+                                            <span class="detail-label">User ID</span>
+                                            <span class="detail-value">#<?= htmlspecialchars($request['userid']) ?></span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Card Number</span>
+                                            <span class="detail-value card-number"><?= htmlspecialchars($request['cardno']) ?></span>
+                                        </div>
+                                        <div class="detail-item">
+                                            <span class="detail-label">Account Balance</span>
+                                            <span class="detail-value balance">৳ <?= number_format($request['balance'], 2) ?></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="request-actions">
+                                        <form method="post" style="display: inline-block;">
+                                            <input type="hidden" name="userid" value="<?= $request['userid'] ?>">
+                                            <input type="hidden" name="cardno" value="<?= $request['cardno'] ?>">
+                                            <button type="submit" name="action" value="accept" class="btn btn-accept" onclick="return confirm('Are you sure you want to accept this card request?')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                Accept
+                                            </button>
+                                        </form>
+                                        <form method="post" style="display: inline-block;">
+                                            <input type="hidden" name="userid" value="<?= $request['userid'] ?>">
+                                            <input type="hidden" name="cardno" value="<?= $request['cardno'] ?>">
+                                            <button type="submit" name="action" value="reject" class="btn btn-reject" onclick="return confirm('Are you sure you want to reject this card request?')">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="12" cy="12" r="10"/>
+                                                    <line x1="15" y1="9" x2="9" y2="15"/>
+                                                    <line x1="9" y1="9" x2="15" y2="15"/>
+                                                </svg>
+                                                Reject
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="page-footer">
+            <p>&copy; 2025 Lucky Bank Admin Panel. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Admin Guide</a>
+                <span class="separator">|</span>
+                <a href="#">System Logs</a>
+                <span class="separator">|</span>
+                <a href="#">Support</a>
+            </div>
+        </footer>
+    </div>
 </body>
 </html>

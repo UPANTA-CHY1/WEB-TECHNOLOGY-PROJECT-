@@ -52,25 +52,68 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 ?>
 
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <title>Login</title>
-  <link rel="stylesheet" href="assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Bank - Secure Login</title>
+    <link rel="stylesheet" href="assets/login.css">
 </head>
-
 <body>
-  <h2>Login</h2>
-  <?php if (!empty($error))
-    echo "<p style='color:red;'>$error</p>"; ?>
-  <form method="post" action="login.php">
-    <label>Email:</label><br>
-    <input type="email" name="email" required><br>
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
-    <input type="submit" value="Login">
-  </form>
-  <p>Don’t have an account? <a href="register.php">Register here</a></p>
-</body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="bank-header">
+                <div class="bank-logo">
+                    <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    <h1 class="bank-name">Lucky Bank</h1>
+                </div>
+                <p class="bank-tagline">Secure Online Banking</p>
+            </div>
 
+            <div class="login-form-container">
+                <h2 class="login-title">Welcome Back</h2>
+                <p class="login-subtitle">Please sign in to your account</p>
+
+                <?php if (!empty($error)): ?>
+                    <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
+                <?php endif; ?>
+
+                <form class="login-form" method="post" action="login.php">
+                    <div class="form-group">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" id="email" name="email" class="form-input" required placeholder="Enter your email">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" name="password" class="form-input" required placeholder="Enter your password">
+                    </div>
+
+                    <div class="form-options">
+                        <a href="#" class="forgot-password">Forgot Password?</a>
+                    </div>
+
+                    <button type="submit" class="login-button">Sign In</button>
+                </form>
+
+                <div class="signup-link">
+                    <p>Don't have an account? <a href="register.php" class="signup-text">Register here</a></p>
+                </div>
+            </div>
+        </div>
+
+        <footer class="login-footer">
+            <p>&copy; 2025 Lucky Bank. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <span class="separator">|</span>
+                <a href="#">Terms of Service</a>
+                <span class="separator">|</span>
+                <a href="#">Support</a>
+            </div>
+        </footer>
+    </div>
+</body>
 </html>

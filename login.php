@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+// this is a change 
+
 if (isset($_SESSION['username'])) {
     header("Location: index.php");
     exit;

@@ -11,8 +11,30 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $stmt->bind_param("sss", $username, $email, $password);
     
     if ($stmt->execute()) {
+        // Get the new user's ID
+        $userid = $stmt->insert_id;
+        // Generate a unique 16-digit card number
+        do {
+            $cardno = '';
+            for ($i = 0; $i < 16; $i++) {
+                $cardno .= mt_rand($i === 0 ? 1 : 0, 9); // First digit not zero
+            }
+            $check = $conn->prepare("SELECT id FROM cards WHERE cardno = ?");
+            $check->bind_param("s", $cardno);
+            $check->execute();
+            $check->store_result();
+            $isUnique = $check->num_rows === 0;
+            $check->close();
+        } while (!$isUnique);
+        // Set valid_till to 3 years from today
+        $valid_till = date('Y-m-d', strtotime('+3 years'));
+        $insertCard = $conn->prepare("INSERT INTO cards (userid, cardno, valid_till) VALUES (?, ?, ?)");
+        $insertCard->bind_param("iss", $userid, $cardno, $valid_till);
+        $insertCard->execute();
+        $insertCard->close();
         $_SESSION['username'] = $username;
         $_SESSION['email'] = $email;
+        $_SESSION['id'] = $userid;
         header("Location: index.php");
     } else {
         $error = "User already exists or error occurred.";

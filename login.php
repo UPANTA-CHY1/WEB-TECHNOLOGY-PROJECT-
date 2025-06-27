@@ -14,20 +14,27 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $email = trim($_POST["email"]);
     $password = $_POST["password"];
 
-    $stmt = $conn->prepare("SELECT username, password, role FROM users WHERE email=?");
+    $stmt = $conn->prepare("SELECT username, password, role, status, id FROM users WHERE email=?");
     if (!$stmt) {
         die("Prepare failed: " . $conn->error);
     }
     $stmt->bind_param("s", $email);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($username, $hashed_password, $role);
+    $stmt->bind_result($username, $hashed_password, $role, $status, $id);
     $stmt->fetch();
 
     if ($stmt->num_rows > 0 && password_verify($password, $hashed_password)) {
+        if($status ==0){
+            header("Location: inactiveAccount.php");
+            $stmt->close();
+            $conn->close();
+            exit;
+        }
         $_SESSION['username'] = $username;
         $_SESSION['email'] = $email;
         $_SESSION['role'] = $role;
+        $_SESSION['id'] = $id;
         if ($role === 'admin') {
             $_SESSION['admin'] = true;
             header("Location: adminDashboard.php");

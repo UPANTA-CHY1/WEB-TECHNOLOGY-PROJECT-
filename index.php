@@ -72,7 +72,7 @@ if (!isset($_SESSION['username'])) {
   }
 
   function manageCards() {
-    window.location.href = 'cards.html';
+    window.location.href = 'cards.php';
   }
 
   function updateBalance() {

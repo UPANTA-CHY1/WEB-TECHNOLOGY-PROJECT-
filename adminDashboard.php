@@ -20,6 +20,10 @@ if (isset($_SESSION['admin']) && $_SESSION['admin'] === false) {
 </head>
 <body>
     <h1>admin dashboard</h1>
+    <div>
+        <a href="./adminAllUsers.php"><button>show all users</button></a>
+        <a href="adminManageCardRequests.php"><button>manage card request</button></a>
+    </div>
     <a href="logout.php" style="float:right;">Logout</a>
     
 </body>

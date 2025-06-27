@@ -1,0 +1,39 @@
+.container {
+    width: 50%;
+    margin: auto;
+    text-align: center;
+}
+
+.card {
+    position: relative;
+    display: inline-block;
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+#card-number, #card-details {
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px black;
+}
+
+#card-number {
+    font-size: 20px;
+    bottom: 40px;
+    left: 20px;
+}
+
+#card-details {
+    font-size: 12px;
+    width: 52%;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    justify-content: space-between;
+}

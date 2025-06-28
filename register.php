@@ -6,13 +6,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST["username"]);
     $email = trim($_POST["email"]);
     $password = password_hash($_POST["password"], PASSWORD_DEFAULT);
+    $securityanswer = trim($_POST["securityanswer"]);
 
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $username, $email, $password);
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password, securityanswer) VALUES (?, ?, ?, ?)");
+    $stmt->bind_param("ssss", $username, $email, $password, $securityanswer);
     
     if ($stmt->execute()) {
         // Get the new user's ID
         $userid = $stmt->insert_id;
+
         // Generate a unique 16-digit card number
         do {
             $cardno = '';
@@ -26,16 +28,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $isUnique = $check->num_rows === 0;
             $check->close();
         } while (!$isUnique);
+
         // Set valid_till to 3 years from today
         $valid_till = date('Y-m-d', strtotime('+3 years'));
         $insertCard = $conn->prepare("INSERT INTO cards (userid, cardno, valid_till) VALUES (?, ?, ?)");
         $insertCard->bind_param("iss", $userid, $cardno, $valid_till);
         $insertCard->execute();
         $insertCard->close();
+
         $_SESSION['username'] = $username;
         $_SESSION['email'] = $email;
         $_SESSION['id'] = $userid;
         header("Location: index.php");
+        exit;
     } else {
         $error = "User already exists or error occurred.";
     }
@@ -88,6 +93,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <div class="password-requirements">
                             <small>Password should be at least 8 characters long</small>
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="securityanswer" class="form-label">What is your great grandmother's name?</label>
+                        <input type="text" id="securityanswer" name="securityanswer" class="form-input" required placeholder="Enter the name">
                     </div>
 
                     <div class="form-options">

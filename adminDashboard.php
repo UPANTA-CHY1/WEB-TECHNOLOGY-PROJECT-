@@ -98,16 +98,6 @@ if (isset($_SESSION['admin']) && $_SESSION['admin'] === false) {
             alert('System Settings feature coming soon!');
         }
 
-        // Load dashboard stats
-        function loadDashboardStats() {
-            // Simulate loading stats
-            setTimeout(() => {
-                document.getElementById('totalUsers').textContent = '1,247';
-                document.getElementById('pendingRequests').textContent = '23';
-                document.getElementById('activeSessions').textContent = '156';
-            }, 1000);
-        }
-
         window.onload = function() {
             loadDashboardStats();
         };

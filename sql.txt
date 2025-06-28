@@ -5,7 +5,8 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     balance DOUBLE DEFAULT 0,
     role VARCHAR(50) DEFAULT 'user',
-    status TINYINT(1) DEFAULT 1
+    status TINYINT(1) DEFAULT 1,
+    securityanswer VARCHAR(255) NOT NULL
 );
 
 

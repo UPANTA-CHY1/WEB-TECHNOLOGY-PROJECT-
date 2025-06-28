@@ -32,19 +32,19 @@ $stmt->close();
 
 if (empty($sender_id)) {
     echo json_encode(['success' => false, 'message' => 'Sender not found.']);
-    die();
+    exit;
 }
 
 if ($sender_balance < $amount) {
     echo json_encode(['success' => false, 'message' => 'Insufficient balance.']);
-    die();
+    exit;
 }
 
 // Get receiver info
 $stmt = $conn->prepare("SELECT id, balance FROM users WHERE email=?");
 if (!$stmt) {
     echo json_encode(['success' => false, 'message' => $conn->error]);
-    die();
+    exit;
 }
 $stmt->bind_param("s", $receiver_email);
 $stmt->execute();
@@ -54,11 +54,11 @@ $stmt->close();
 
 if (empty($receiver_id)) {
     echo json_encode(['success' => false, 'message' => 'Receiver not found.']);
-    die();
+    exit;
 }
 if($receiver_id == $sender_id) {
     echo json_encode(['success'=> false, 'message'=> 'forbidden']);
-    die();
+    exit;
 }
 
 // Start transaction
@@ -87,11 +87,9 @@ try {
     
     $conn->commit();
     echo json_encode(['success' => true, 'message' => 'Transfer successful.']);
-    header('Content-Type: application/json');
-    echo json_encode(['status' => 'success', 'message' => 'Transfer completed!']);
-    die();
+    exit;
 } catch (Exception $e) {
     $conn->rollback();
     echo json_encode(['success' => false, 'message' => 'Transfer failed: ' . $e->getMessage()]);
-    die();
+    exit;
 }

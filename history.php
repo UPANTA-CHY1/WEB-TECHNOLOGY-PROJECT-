@@ -5,7 +5,6 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,7 +57,6 @@ if (!isset($_SESSION['email'])) {
                             <h3>No Transactions Found</h3>
                             <p>You haven't made any transactions yet. Start using your account to see your transaction history here.</p>
                         </div>
-
                         <div class="transactions-table" id="transactionsTable" style="display: none;">
                             <div class="table-header">
                                 <div class="table-row">
@@ -92,51 +90,10 @@ if (!isset($_SESSION['email'])) {
     </div>
 
     <script>
-        let allTransactions = [];
-
-        function loadTransactions() {
-            const loadingState = document.getElementById('loadingState');
-            const emptyState = document.getElementById('emptyState');
-            const transactionsTable = document.getElementById('transactionsTable');
-            const refreshBtn = document.querySelector('.refresh-btn');
-
-            // Show loading state
-            loadingState.style.display = 'flex';
-            emptyState.style.display = 'none';
-            transactionsTable.style.display = 'none';
-            refreshBtn.disabled = true;
-
-            fetch('api/transactionHistory.php')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success' && data.transactions && data.transactions.length > 0) {
-                        allTransactions = data.transactions;
-                        displayTransactions(allTransactions);
-                        updateStats(allTransactions);
-                        
-                        loadingState.style.display = 'none';
-                        transactionsTable.style.display = 'block';
-                    } else {
-                        loadingState.style.display = 'none';
-                        emptyState.style.display = 'flex';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading transactions:', error);
-                    loadingState.style.display = 'none';
-                    emptyState.style.display = 'flex';
-                })
-                .finally(() => {
-                    refreshBtn.disabled = false;
-                });
-        }
-
         function displayTransactions(transactions) {
             const tbody = document.getElementById('transactionsBody');
             tbody.innerHTML = '';
-            
             const myEmail = <?php echo json_encode($_SESSION['email']); ?>;
-            
             transactions.forEach(tx => {
                 let type, otherParty, typeClass;
                 if (tx.sender_email === myEmail) {
@@ -148,15 +105,9 @@ if (!isset($_SESSION['email'])) {
                     otherParty = tx.sender_email;
                     typeClass = 'cash-in';
                 }
-
-                const transactionDate = tx.created_at ? new Date(tx.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                const transactionDate = tx.created_at ? new Date(tx.created_at).toLocaleString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                 }) : 'N/A';
-
                 const row = document.createElement('div');
                 row.className = 'table-row transaction-row';
                 row.innerHTML = `
@@ -183,22 +134,30 @@ if (!isset($_SESSION['email'])) {
             });
         }
 
-        function updateStats(transactions) {
-            const totalTransactions = transactions.length;
-            const currentMonth = new Date().getMonth();
-            const currentYear = new Date().getFullYear();
-            
-            const monthlyTransactions = transactions.filter(tx => {
-                if (!tx.created_at) return false;
-                const txDate = new Date(tx.created_at);
-                return txDate.getMonth() === currentMonth && txDate.getFullYear() === currentYear;
-            }).length;
-
-            document.getElementById('totalTransactions').textContent = totalTransactions;
-            document.getElementById('monthlyTransactions').textContent = monthlyTransactions;
+        function loadTransactions() {
+            fetch('api/transactionHistory.php')
+                .then(response => response.json())
+                .then(data => {
+                    const emptyState = document.getElementById('emptyState');
+                    const transactionsTable = document.getElementById('transactionsTable');
+                    if (data.status === 'success' && data.transactions && data.transactions.length > 0) {
+                        displayTransactions(data.transactions);
+                        transactionsTable.style.display = 'block';
+                        emptyState.style.display = 'none';
+                    } else {
+                        transactionsTable.style.display = 'none';
+                        emptyState.style.display = 'flex';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading transactions:', error);
+                    const emptyState = document.getElementById('emptyState');
+                    const transactionsTable = document.getElementById('transactionsTable');
+                    transactionsTable.style.display = 'none';
+                    emptyState.style.display = 'flex';
+                });
         }
 
-        // Load transactions on page load
         window.onload = function() {
             loadTransactions();
         };

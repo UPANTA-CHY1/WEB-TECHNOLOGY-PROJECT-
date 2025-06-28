@@ -92,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     </div>
 
                     <div class="form-options">
-                        <a href="#" class="forgot-password">Forgot Password?</a>
+                        <a href="forgotPassword.php" class="forgot-password">Forgot Password?</a>
                     </div>
 
                     <button type="submit" class="login-button">Sign In</button>

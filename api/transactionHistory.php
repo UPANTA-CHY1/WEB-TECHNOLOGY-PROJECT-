@@ -22,7 +22,7 @@ if (!$user_id) {
 }
 
 // Get transactions where user is sender or receiver
-$stmt = $conn->prepare("SELECT id, sender, receiver, amount FROM transactions WHERE sender=? OR receiver=? ORDER BY id DESC");
+$stmt = $conn->prepare("SELECT id, sender, receiver, amount, created_at FROM transactions WHERE sender=? OR receiver=? ORDER BY id DESC");
 $stmt->bind_param("ii", $user_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -49,7 +49,8 @@ while ($row = $result->fetch_assoc()) {
         'id' => $row['id'],
         'sender_email' => $sender_email,
         'receiver_email' => $receiver_email,
-        'amount' => $row['amount']
+        'amount' => $row['amount'],
+        'created_at' => $row['created_at']
     ];
 }
 $stmt->close();

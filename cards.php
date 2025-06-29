@@ -67,7 +67,7 @@ if (isset($_POST['request_card']) && $cardExpired && !$requestPending) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Cards</title>
-    <link rel="stylesheet" href="/bank/WEB-TECHNOLOGY-PROJECT-/assets/cards.css">
+    <link rel="stylesheet" href="assets/cards.css">
 </head>
 
 <body>
@@ -77,7 +77,7 @@ if (isset($_POST['request_card']) && $cardExpired && !$requestPending) {
             <p style="color:red;"><?= htmlspecialchars($error) ?></p>
         <?php elseif ($cardDetails): ?>
             <div class="card">
-                <img src="/bank/WEB-TECHNOLOGY-PROJECT-/assets/visa.jpg" alt="">
+                <img src="assets/visa.jpg" alt="">
                 <p id="card-number"><?= htmlspecialchars($cardDetails['cardno']) ?></p>
                 <div id="card-details">
                     <p class="cardholder"><?= htmlspecialchars($cardDetails['cardholder']) ?></p>
